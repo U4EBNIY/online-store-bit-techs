@@ -76,6 +76,17 @@ class DeviceController {
         )
         return res.json(device);
     }
+
+    async delete(req, res) {
+    const { id } = req.params;
+    const device = await Device.findByPk(id);
+    if (!device) {
+        return res.status(404).json({ message: 'Товар не найден' });
+    }
+    await device.destroy();
+    return res.json({ message: 'Товар удалён' });
+}
+
 }
 
 module.exports = new DeviceController();

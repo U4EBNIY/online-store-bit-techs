@@ -77,4 +77,10 @@ export default class DeviceStore {
     get limit() {
         return this._limit;
     }
+
+    resetFilters() {
+    this.setSelectedType({});
+    this.setSelectedBrand({});
+    this.setPage(1);
+}
 }
