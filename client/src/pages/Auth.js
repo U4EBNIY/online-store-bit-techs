@@ -5,6 +5,7 @@ import { LOGIN_ROUTE, REGISTRATION_ROUTE, SHOP_ROUTE } from '../utils/consts';
 import { registration, login } from '../http/userAPI';
 import { observer } from 'mobx-react-lite';
 import { Context } from '..';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const Auth = observer(() => {
   const { user } = useContext(Context);
@@ -14,29 +15,38 @@ const Auth = observer(() => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('USER');  // <-- по умолчанию USER
+  const [role, setRole] = useState('USER');
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [captchaValue, setCaptchaValue] = useState(null);
+
+  const handleCaptchaChange = (value) => {
+    setCaptchaValue(value);
+  };
 
   const click = async () => {
     try {
+      if (loginAttempts >= 2 && !captchaValue) {
+        alert("Пожалуйста, пройдите капчу");
+        return;
+      }
+
       let data;
       if (isLogin) {
         data = await login(email, password);
       } else {
-        data = await registration(email, password, role);  // передаём роль
+        data = await registration(email, password, role);
       }
-      user.setUser(data); 
+      user.setUser(data);
       user.setIsAuth(true);
       navigate(SHOP_ROUTE);
     } catch (e) {
-      alert(e.response.data.message);
+      setLoginAttempts(prev => prev + 1);
+      alert(e.response?.data?.message || "Ошибка входа");
     }
   };
 
   return (
-    <Container
-      className="d-flex justify-content-center align-items-center"
-      style={{ height: window.innerHeight - 54 }}
-    >
+    <Container className="d-flex justify-content-center align-items-center" style={{ height: window.innerHeight - 54 }}>
       <Card style={{ width: 600 }} className="p-5">
         <h2 className="m-auto">{isLogin ? 'Авторизация' : 'Регистрация'}</h2>
         <Form className="d-flex flex-column">
@@ -62,7 +72,6 @@ const Auth = observer(() => {
                   label="Пользователь"
                   name="role"
                   type="radio"
-                  id="role-user"
                   value="USER"
                   checked={role === 'USER'}
                   onChange={e => setRole(e.target.value)}
@@ -72,7 +81,6 @@ const Auth = observer(() => {
                   label="Админ"
                   name="role"
                   type="radio"
-                  id="role-admin"
                   value="ADMIN"
                   checked={role === 'ADMIN'}
                   onChange={e => setRole(e.target.value)}
@@ -80,6 +88,16 @@ const Auth = observer(() => {
               </div>
             </Form.Group>
           )}
+
+          {isLogin && loginAttempts >= 2 && (
+            <div className="mt-3">
+              <ReCAPTCHA
+                sitekey="6LfCyFkrAAAAAMYR4D_UmTKyyZb1UXWgEONhJXRo" // <-- замени на ключ от Google reCAPTCHA
+                onChange={handleCaptchaChange}
+              />
+            </div>
+          )}
+
           <Row className="d-flex justify-content-between mt-3 ps-3 pe-3">
             <Col>
               {isLogin ? (
@@ -107,7 +125,6 @@ const Auth = observer(() => {
                 </Button>
             )}
             </Col>
-
           </Row>
         </Form>
       </Card>
