@@ -25,7 +25,7 @@ const NavBar = observer(() => {
                 {user.isAuth ? (
                     <Nav className="ms-auto" style={{ color: 'white' }}>
                         {/* 🟢 Показываем кнопку только если роль ADMIN */}
-                        {user.user.role === 'ADMIN' && (
+                        {user.isAuth && user.user.role === 'ADMIN' && (
                             <Button
                                 variant={'outline-light'}
                                 onClick={() => navigate(ADMIN_ROUTE)}

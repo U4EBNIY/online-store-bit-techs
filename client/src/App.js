@@ -15,7 +15,7 @@ const App = observer(() => {
 
   useEffect(() => {
     check().then(data =>  {
-      user.setUser(true);
+      user.setUser(data); // <-- сюда должен приходить id, email, role
       user.setIsAuth(true);
     }).finally(() => setLoading(false))
 }, [])
