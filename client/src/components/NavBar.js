@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Navbar, Nav, Button, Container } from 'react-bootstrap';
 import { Context } from '../index';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate , useLocation } from 'react-router-dom';
 import { ADMIN_ROUTE, LOGIN_ROUTE, SHOP_ROUTE } from '../utils/consts';
 import { observer } from 'mobx-react-lite';
 import { BASKET_ROUTE } from '../utils/consts';
@@ -19,8 +19,19 @@ const NavBar = observer(() => {
 
   const handleHomeClick = () => {
     device.resetFilters();         // 💥 сброс фильтров
-    navigate(SHOP_ROUTE);          // переход на /shop
+  const isAuthPage =
+    location.pathname === '/login' || location.pathname === '/registration';
+
+  if (isAuthPage) return; // Ничего не делаем, если на странице логина/регистрации
+
+  // Сбрасываем фильтры или другое состояние здесь, если нужно
+
+  navigate(SHOP_ROUTE);
   };
+
+  const location = useLocation();
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/registration';
+
 
   return (
     <Navbar bg="dark" data-bs-theme="dark">
