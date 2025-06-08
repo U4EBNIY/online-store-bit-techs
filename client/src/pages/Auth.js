@@ -93,11 +93,21 @@ const Auth = observer(() => {
               )}
             </Col>
 
-            <Col xs="auto">
-              <Button variant="outline-success" onClick={click}>
+            <Col xs="auto" className="d-flex flex-column gap-2">
+            <Button variant="outline-success" onClick={click}>
                 {isLogin ? 'Войти' : 'Регистрация'}
-              </Button>
+            </Button>
+
+            {isLogin && (
+                <Button
+                variant="secondary"
+                onClick={() => navigate(SHOP_ROUTE)}
+                >
+                Войти как гость
+                </Button>
+            )}
             </Col>
+
           </Row>
         </Form>
       </Card>

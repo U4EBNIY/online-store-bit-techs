@@ -69,18 +69,24 @@ const DevicePage = () => {
             <h3>От: {device.price} руб.</h3>
 
             <Button
-              variant={'outline-dark'}
-              onClick={async () => {
-                try {
-                  await addToBasket(device.id);
-                  alert('Товар добавлен в корзину');
-                } catch (error) {
-                  alert('Ошибка при добавлении в корзину');
+            variant={'outline-dark'}
+            onClick={async () => {
+                if (!user.isAuth) {
+                alert('Сначала войдите в аккаунт, чтобы добавить товар в корзину');
+                return;
                 }
-              }}
+
+                try {
+                await addToBasket(device.id);
+                alert('Товар добавлен в корзину');
+                } catch (error) {
+                alert('Ошибка при добавлении в корзину');
+                }
+            }}
             >
-              Добавить в корзину
+            Добавить в корзину
             </Button>
+
 
             {user.user?.role === 'ADMIN' && (
               <Button
