@@ -6,7 +6,8 @@ import { observer } from 'mobx-react-lite';
 import { Context } from '.';
 import { check } from './http/userAPI'; 
 import { Spinner } from 'react-bootstrap';
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = observer(() => {
   const {user} = useContext(Context);
