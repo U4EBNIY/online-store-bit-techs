@@ -89,13 +89,23 @@ const DevicePage = () => {
 
 
             {user.user?.role === 'ADMIN' && (
-              <Button
-                variant="danger"
-                className="mt-3"
-                onClick={handleDelete}
-              >
-                Удалить товар
-              </Button>
+              <>
+                <Button
+                  variant="outline-primary"
+                  className="mt-3"
+                  onClick={() => navigate(`/edit-device/${device.id}`)}
+                >
+                  Редактировать товар
+                </Button>
+
+                <Button
+                  variant="danger"
+                  className="mt-2"
+                  onClick={handleDelete}
+                >
+                  Удалить товар
+                </Button>
+              </>
             )}
           </Card>
         </Col>
