@@ -5,53 +5,63 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!root || !window.order) return;
 
     const order = window.order;
-
     const currentDate = new Date().toLocaleString();
 
     root.innerHTML = `
         <div style="
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            width: 600px;
+            width: 750px;
             margin: auto;
-            padding: 30px;
-            border: 1px solid #ccc;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 40px;
+            border: 2px solid #000;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            background-color: #fff;
         ">
-            <h1 style="text-align: center; margin-bottom: 10px;">🧾 Чек на заказ</h1>
-            <p style="text-align: center; margin: 0;">Интернет-магазин "Мир Техники"</p>
-            <p style="text-align: center; margin-bottom: 20px;">Дата: ${currentDate}</p>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <img src="https://i.pinimg.com/736x/2b/09/45/2b0945ca8be9d2e3ef6417cf2866e324.jpg" 
+                     alt="Логотип" 
+                     style="max-height: 160px; margin-bottom: 20px; border-radius: 10px;" />
+                <h1 style="font-size: 36px; margin: 0;">🧾 Кассовый чек</h1>
+                <p style="font-size: 18px;">Интернет-магазин <strong>«ТехноСфера»</strong></p>
+                <p style="font-size: 18px;">${currentDate}</p>
+            </div>
 
-            <p><strong>Номер заказа:</strong> ${order.id}</p>
-            <p><strong>Количество товаров:</strong> ${order.devices.length}</p>
+            <div style="font-size: 20px; margin-bottom: 20px;">
+                <strong>Номер заказа:</strong> ${order.id}<br/>
+                <strong>Позиций в заказе:</strong> ${order.devices.length}
+            </div>
 
-            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 18px;">
                 <thead>
-                    <tr style="background-color: #f4f4f4;">
-                        <th style="border: 1px solid #ccc; padding: 8px;">#</th>
-                        <th style="border: 1px solid #ccc; padding: 8px;">Товар</th>
-                        <th style="border: 1px solid #ccc; padding: 8px;">Цена (руб.)</th>
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="border: 1px solid #ccc; padding: 10px;">№</th>
+                        <th style="border: 1px solid #ccc; padding: 10px;">Товар</th>
+                        <th style="border: 1px solid #ccc; padding: 10px;">Цена (₽)</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${order.devices.map((device, idx) => `
                         <tr>
-                            <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">${idx + 1}</td>
-                            <td style="border: 1px solid #ccc; padding: 8px;">${device.name}</td>
-                            <td style="border: 1px solid #ccc; padding: 8px; text-align: right;">${device.price}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${idx + 1}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">${device.name}</td>
+                            <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">${device.price}</td>
                         </tr>
                     `).join('')}
                 </tbody>
             </table>
 
-            <hr style="margin: 25px 0;">
+            <div style="margin-top: 30px; text-align: right; font-size: 24px;">
+                <strong>Итого к оплате:</strong> ${order.totalPrice} ₽
+            </div>
 
-            <h2 style="text-align: right;">Итого: ${order.totalPrice} руб.</h2>
-
-            <p style="text-align: center; margin-top: 40px;">Спасибо за покупку! Надеемся увидеть вас снова ❤️</p>
+            <div style="text-align: center; margin-top: 50px; font-size: 18px; color: #444;">
+                <p>Спасибо за ваш заказ ❤️</p>
+                <p>Вы сделали отличный выбор. Ждём вас снова!</p>
+            </div>
         </div>
     `;
 
     setTimeout(() => {
         window.print();
-    }, 300);
+    }, 400);
 });

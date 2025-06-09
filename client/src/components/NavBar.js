@@ -37,7 +37,7 @@ const NavBar = observer(() => {
     <Navbar bg="dark" data-bs-theme="dark">
       <Container>
         <Button variant="link" className="text-white text-decoration-none p-0 fs-5" onClick={handleHomeClick}>
-          Интернет-магазин - "Мир Техники"
+          Интернет-магазин - «ТехноСфера»
         </Button>
 
         {user.isAuth ? (

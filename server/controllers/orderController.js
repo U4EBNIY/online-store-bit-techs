@@ -2,51 +2,49 @@ const { Basket, BasketDevice, Device, Order, OrderDevice } = require('../models/
 const ApiError = require('../error/ApiError');
 
 class OrderController {
-  async createOrder(req, res, next) {
-    try {
-        const userId = req.user.id;
-        console.log('🧾 userId:', userId);
+async createOrder(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const basket = await Basket.findOne({ where: { userId } });
 
-        const basket = await Basket.findOne({ where: { userId } });
-        console.log('🧺 basket:', basket?.id);
-
-        const basketDevices = await BasketDevice.findAll({
-            where: { basketId: basket.id },
-            include: [Device]
-        });
-
-        console.log('📦 basketDevices:', basketDevices.map(dev => ({
-            id: dev.id,
-            deviceId: dev.deviceId,
-            device: dev.device?.name,
-        })));
-
-        if (!basketDevices.length) {
-            return next(ApiError.badRequest('Корзина пуста'));
-        }
-
-        const totalPrice = basketDevices.reduce((sum, item) => sum + item.device.price, 0);
-        console.log('💰 totalPrice:', totalPrice);
-
-        const order = await Order.create({ userId, totalPrice });
-
-        for (const item of basketDevices) {
-            console.log('➡️ Добавляем в заказ:', item.deviceId);
-            await OrderDevice.create({
-                orderId: order.id,
-                deviceId: item.deviceId,
-            });
-        }
-
-        await BasketDevice.destroy({ where: { basketId: basket.id } });
-
-        return res.json({ message: 'Заказ оформлен', orderId: order.id });
-
-    } catch (e) {
-        console.error('❌ Ошибка внутри createOrder:', e);
-        next(ApiError.internal('Ошибка при оформлении заказа'));
+    if (!basket) {
+      return next(ApiError.badRequest("Корзина не найдена"));
     }
+
+    // Получаем товары корзины, фильтруем те, где device не найден
+    const basketDevices = await BasketDevice.findAll({
+      where: { basketId: basket.id },
+      include: [{ model: Device }]
+    });
+
+    // Отфильтруем basketDevices, у которых device !== null
+    const validBasketDevices = basketDevices.filter(bd => bd.device);
+
+    if (validBasketDevices.length === 0) {
+      return next(ApiError.badRequest("В корзине нет доступных товаров для оформления заказа"));
+    }
+
+    // Считаем общую стоимость по validBasketDevices
+    const totalPrice = validBasketDevices.reduce((sum, bd) => sum + bd.device.price, 0);
+
+    // Создаем заказ
+    const order = await Order.create({ userId, totalPrice });
+
+    // Добавляем товары в OrderDevice
+    for (const bd of validBasketDevices) {
+      await OrderDevice.create({ orderId: order.id, deviceId: bd.device.id });
+    }
+
+    // Можно очистить корзину или оставить как есть
+    await BasketDevice.destroy({ where: { basketId: basket.id } });
+    return res.json({ message: 'Заказ оформлен', orderId: order.id });
+
+  } catch (err) {
+    console.error("Ошибка внутри createOrder:", err);
+    next(ApiError.internal('Ошибка при оформлении заказа'));
+  }
 }
+
 
 
   async getUserOrders(req, res, next) {
