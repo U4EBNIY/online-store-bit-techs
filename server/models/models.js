@@ -92,4 +92,6 @@ module.exports = {
     Brand,
     TypeBrand,
     DeviceInfo,
+    Order,
+    OrderDevice,
 }

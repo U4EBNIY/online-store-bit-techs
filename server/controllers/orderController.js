@@ -1,39 +1,53 @@
-const { Order, OrderDevice, Basket, BasketDevice, Device } = require('../models/models');
+const { Basket, BasketDevice, Device, Order, OrderDevice } = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 class OrderController {
   async createOrder(req, res, next) {
     try {
-      const userId = req.user.id;
-      const basket = await Basket.findOne({ where: { userId } });
+        const userId = req.user.id;
+        console.log('🧾 userId:', userId);
 
-      const basketDevices = await BasketDevice.findAll({
-        where: { basketId: basket.id },
-        include: [Device],
-      });
+        const basket = await Basket.findOne({ where: { userId } });
+        console.log('🧺 basket:', basket?.id);
 
-      if (!basketDevices.length) {
-        return next(ApiError.badRequest('Корзина пуста'));
-      }
-
-      const totalPrice = basketDevices.reduce((sum, item) => sum + item.device.price, 0);
-      const order = await Order.create({ userId, totalPrice });
-
-      for (const item of basketDevices) {
-        await OrderDevice.create({
-          orderId: order.id,
-          deviceId: item.deviceId,
+        const basketDevices = await BasketDevice.findAll({
+            where: { basketId: basket.id },
+            include: [Device]
         });
-      }
 
-      // Очистка корзины
-      await BasketDevice.destroy({ where: { basketId: basket.id } });
+        console.log('📦 basketDevices:', basketDevices.map(dev => ({
+            id: dev.id,
+            deviceId: dev.deviceId,
+            device: dev.device?.name,
+        })));
 
-      return res.json({ message: 'Заказ оформлен', orderId: order.id });
+        if (!basketDevices.length) {
+            return next(ApiError.badRequest('Корзина пуста'));
+        }
+
+        const totalPrice = basketDevices.reduce((sum, item) => sum + item.device.price, 0);
+        console.log('💰 totalPrice:', totalPrice);
+
+        const order = await Order.create({ userId, totalPrice });
+
+        for (const item of basketDevices) {
+            console.log('➡️ Добавляем в заказ:', item.deviceId);
+            await OrderDevice.create({
+                orderId: order.id,
+                deviceId: item.deviceId,
+            });
+        }
+
+        await BasketDevice.destroy({ where: { basketId: basket.id } });
+
+        return res.json({ message: 'Заказ оформлен', orderId: order.id });
+
     } catch (e) {
-      next(ApiError.internal('Ошибка при оформлении заказа'));
+        console.error('❌ Ошибка внутри createOrder:', e);
+        next(ApiError.internal('Ошибка при оформлении заказа'));
     }
-  }
+}
+
 
   async getUserOrders(req, res, next) {
     try {

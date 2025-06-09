@@ -31,17 +31,19 @@ const Basket = () => {
         calculateTotalPrice(updated);
     };
 
-    const handleOrder = async () => {
-        try {
-            const res = await createOrder();
-            alert(`Заказ №${res.orderId} успешно оформлен!`);
-            setBasketDevices([]);
-            setTotalPrice(0);
-            navigate('/'); // Или на страницу заказов
-        } catch (e) {
-            alert('Ошибка при оформлении заказа');
-        }
-    };
+const handleOrder = async () => {
+    try {
+        const res = await createOrder();
+        alert(`Заказ №${res.orderId} успешно оформлен!`);
+        setBasketDevices([]);
+        setTotalPrice(0);
+        navigate('/');
+    } catch (e) {
+        console.error('❌ Ошибка при оформлении заказа:', e?.response?.data || e.message);
+        alert('Ошибка при оформлении заказа');
+    }
+};
+
 
     return (
         <Container className="mt-3">
