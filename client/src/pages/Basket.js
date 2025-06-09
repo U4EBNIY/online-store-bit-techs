@@ -33,8 +33,39 @@ const Basket = () => {
 
 const handleOrder = async () => {
     try {
-        const res = await createOrder();
-        alert(`Заказ №${res.orderId} успешно оформлен!`);
+        const res = await createOrder(); // допустим, он вернёт orderId
+
+        // Подготовим данные для печати
+        const receiptWindow = window.open('', '_blank', 'width=600,height=800');
+
+        const orderDetails = {
+            id: res.orderId,
+            totalPrice,
+            devices: basketDevices.map(item => ({
+                name: item.device.name,
+                price: item.device.price
+            }))
+        };
+
+        // Превратим в HTML + inline React
+        receiptWindow.document.write(`
+            <html>
+              <head>
+                <title>Чек заказа</title>
+              </head>
+              <body>
+                <div id="receipt-root"></div>
+                <script>
+                    window.order = ${JSON.stringify(orderDetails)};
+                </script>
+                <script src="/receipt-print.js"></script>
+              </body>
+            </html>
+        `);
+
+        receiptWindow.document.close();
+
+        // Очистим корзину и уйдём на главную
         setBasketDevices([]);
         setTotalPrice(0);
         navigate('/');
@@ -43,6 +74,7 @@ const handleOrder = async () => {
         alert('Ошибка при оформлении заказа');
     }
 };
+
 
 
     return (
