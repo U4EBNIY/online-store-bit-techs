@@ -43,7 +43,24 @@ const TypeBrand = sequelize.define('type_brand', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
 });
 
+const Order = sequelize.define('order', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  status: { type: DataTypes.STRING, defaultValue: 'Создан' },
+  totalPrice: { type: DataTypes.INTEGER, allowNull: false },
+});
 
+const OrderDevice = sequelize.define('order_device', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+});
+
+User.hasMany(Order);
+Order.belongsTo(User);
+
+Order.hasMany(OrderDevice);
+OrderDevice.belongsTo(Order);
+
+Device.hasMany(OrderDevice);
+OrderDevice.belongsTo(Device);
 
 User.hasOne(Basket);
 Basket.belongsTo(User);
