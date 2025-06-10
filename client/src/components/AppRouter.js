@@ -10,13 +10,13 @@ const AppRouter = observer(() => {
     const {user} = useContext(Context);
     return (
         <Routes>
-           {user.isAuth && authRoutes.map(({ path, Component }) =>
+           {user.isAuth && authRoutes.map(({ path, Component }) => (
               <Route key={path} path={path} element={<Component/>} exact />
-           )}
-           {publicRoutes.map(({ path, Component }) =>
+           ))}
+           {publicRoutes.map(({ path, Component }) => (
               <Route key={path} path={path} element={<Component/>} exact />
-           )}
-           <Route path="*" element={<Navigate to={LOGIN_ROUTE} />}/>
+           ))}
+           <Route path="*" element={<Navigate to={user.isAuth ? SHOP_ROUTE : LOGIN_ROUTE} />}/>
         </Routes>
      );
 });
