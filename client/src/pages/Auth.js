@@ -13,7 +13,7 @@ const withTimeout = (promise, timeout = 8000) => {
   return Promise.race([
     promise,
     new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Превышено время ожидания ответа от сервера')), timeout)
+      setTimeout(() => reject(new Error('Превышено время ожидания от сервера')), timeout)
     )
   ]);
 };
@@ -79,13 +79,17 @@ const Auth = observer(() => {
     }
   };
 
+  const handleGuestLogin = () => {
+    // Just navigate to shop without changing auth state
+    navigate(SHOP_ROUTE);
+  };
+
   return (
     <div className="auth-background">
       <Container
         ref={containerRef}
         className="d-flex justify-content-center align-items-start min-vh-100"
-        style={{ maxWidth: '1200px', overflow: 'hidden', paddingTop: '12rem', paddingBottom: '3rem' }} 
-        // changed align-items from center to start, added top padding to raise up form
+        style={{ maxWidth: '1200px', overflow: 'hidden', paddingTop: '12rem', paddingBottom: '3rem' }}
       >
         <Card className="auth-card shadow-lg">
           <Card.Body className="p-4 p-md-5">
@@ -176,6 +180,29 @@ const Auth = observer(() => {
                   </>
                 ) : isLogin ? 'Войти' : 'Зарегистрироваться'}
               </Button>
+
+              {isLogin && (
+                <Button
+                  variant="outline-secondary"
+                  onClick={handleGuestLogin}
+                  className="w-100 mb-3"
+                  style={{
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    transition: 'background-color 0.3s, color 0.3s',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.backgroundColor = '#f8f9fa';
+                    e.currentTarget.style.color = '#374151';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                >
+                  Войти как гость
+                </Button>
+              )}
 
               <div className="text-center mt-3">
                 {isLogin ? (
