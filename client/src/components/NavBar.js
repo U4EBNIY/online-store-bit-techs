@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { Navbar, Nav, Button, Container } from 'react-bootstrap';
+import React, { useContext, useState } from 'react';
+import { Navbar, Nav, Button, Container, Form, FormControl, InputGroup } from 'react-bootstrap';
 import { Context } from '../index';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ADMIN_ROUTE, LOGIN_ROUTE, SHOP_ROUTE, BASKET_ROUTE, REGISTRATION_ROUTE } from '../utils/consts';
@@ -9,6 +9,7 @@ const NavBar = observer(() => {
     const { user, device } = useContext(Context);
     const navigate = useNavigate();
     const location = useLocation();
+    const [searchTerm, setSearchTerm] = useState('');
 
     const logOut = () => {
         user.setUser({});
@@ -25,35 +26,65 @@ const NavBar = observer(() => {
         navigate(SHOP_ROUTE);
     };
 
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        device.setSearchTerm(value);  // Assume device store has setSearchTerm to filter devices by name
+    };
+
     return (
         <Navbar
-            bg="#f0f2f5" // Changed background color to a slightly darker light gray
-            variant="light"
-            expand="lg"
-            className="shadow-sm py-3"
             style={{
+                backgroundColor: '#f3f4f6', // Soft light gray background
                 borderBottom: '1px solid #e5e7eb',
                 position: 'sticky',
                 top: 0,
                 zIndex: 1020,
+                paddingTop: '0.75rem',
+                paddingBottom: '0.75rem',
             }}
+            expand="lg"
         >
-            <Container style={{ maxWidth: 1300 }}>
+            <Container style={{ maxWidth: 1300, display: 'flex', alignItems: 'center' }}>
                 <Navbar.Brand
                     style={{
                         cursor: 'pointer',
                         fontWeight: 700,
                         fontSize: '1.75rem',
-                        color: '#111827', // Darker gray almost black for strong visual hierarchy
+                        color: '#111827',
                         userSelect: 'none',
                         letterSpacing: '-0.02em',
+                        marginRight: '1.5rem',
                     }}
                     onClick={handleHomeClick}
                 >
                     ТехноСфера
                 </Navbar.Brand>
+
+                {/* Search bar centered and flex-grow to fill space */}
+                <Form className="d-none d-lg-flex flex-grow-1 mx-3" onSubmit={e => e.preventDefault()}>
+                    <InputGroup>
+                        <FormControl
+                            placeholder="Поиск устройств по названию..."
+                            aria-label="Поиск устройств"
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            style={{
+                                borderRadius: '0.75rem',
+                                fontSize: '1rem',
+                                padding: '0.75rem 1rem',
+                                boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+                                border: '1px solid #d1d5db',
+                                transition: 'border-color 0.3s ease',
+                            }}
+                            onFocus={e => e.target.style.borderColor = '#3b82f6'}
+                            onBlur={e => e.target.style.borderColor = '#d1d5db'}
+                        />
+                    </InputGroup>
+                </Form>
+
                 <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-                <Navbar.Collapse id="responsive-navbar-nav" className="justify-content-end">
+                <Navbar.Collapse id="responsive-navbar-nav" className="justify-content-end mt-3 mt-lg-0">
                     <Nav style={{ alignItems: 'center', gap: '0.75rem' }}>
                         {user.isAuth ? (
                             <>
@@ -65,7 +96,6 @@ const NavBar = observer(() => {
                                         style={{
                                             fontWeight: 600,
                                             fontSize: '1rem',
-                                            transition: 'background-color 0.3s, color 0.3s',
                                         }}
                                     >
                                         Админ Панель
@@ -79,17 +109,9 @@ const NavBar = observer(() => {
                                         fontWeight: 600,
                                         fontSize: '1rem',
                                         position: 'relative',
-                                        transition: 'background-color 0.3s, color 0.3s',
                                     }}
                                 >
                                     Корзина
-                                    {/* Example badge placement if needed */}
-                                    {/* <span
-                                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                        style={{ fontSize: '0.7rem' }}
-                                    >
-                                        3
-                                    </span> */}
                                 </Button>
                                 <Button
                                     variant="outline-danger"
@@ -98,7 +120,6 @@ const NavBar = observer(() => {
                                     style={{
                                         fontWeight: 600,
                                         fontSize: '1rem',
-                                        transition: 'background-color 0.3s, color 0.3s',
                                     }}
                                 >
                                     Выйти
