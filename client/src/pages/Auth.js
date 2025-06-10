@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Button, Card, Container, Form, Alert } from 'react-bootstrap';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { LOGIN_ROUTE, REGISTRATION_ROUTE, SHOP_ROUTE } from '../utils/consts';
@@ -32,6 +32,18 @@ const Auth = observer(() => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
+
+  // Ref to the scrollable container to disable scrolling
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    // Disable scrolling on the entire document to remove scrollbar for auth page
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
 
   const handleCaptchaChange = (value) => {
     setCaptchaValue(value);
@@ -69,7 +81,12 @@ const Auth = observer(() => {
 
   return (
     <div className="auth-background">
-      <Container className="d-flex justify-content-center align-items-center min-vh-100">
+      <Container
+        ref={containerRef}
+        className="d-flex justify-content-center align-items-start min-vh-100"
+        style={{ maxWidth: '1200px', overflow: 'hidden', paddingTop: '12rem', paddingBottom: '3rem' }} 
+        // changed align-items from center to start, added top padding to raise up form
+      >
         <Card className="auth-card shadow-lg">
           <Card.Body className="p-4 p-md-5">
             <div className="text-center mb-4">
@@ -90,6 +107,7 @@ const Auth = observer(() => {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   type="email"
+                  autoComplete="username"
                 />
               </Form.Group>
 
@@ -101,11 +119,14 @@ const Auth = observer(() => {
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     type={showPassword ? "text" : "password"}
+                    autoComplete={isLogin ? "current-password" : "new-password"}
                   />
                   <Button 
                     variant="link" 
                     className="password-toggle"
                     onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                    aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
                   >
                     <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
                   </Button>
