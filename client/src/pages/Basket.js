@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { fetchBasket, removeFromBasket } from '../http/basketAPI';
 import { createOrder } from '../http/orderAPI';
-import { Container, Row, Col, Button, Card, Image } from 'react-bootstrap';
+import { Container, Row, Col, Button, Card, Image, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 const Basket = () => {
     const [basketDevices, setBasketDevices] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
     const loadBasket = async () => {
-        const data = await fetchBasket();
-        setBasketDevices(data);
-        calculateTotalPrice(data);
+        try {
+            const data = await fetchBasket();
+            if (!Array.isArray(data)) throw new Error('Неверный формат данных корзины');
+            setBasketDevices(data);
+            calculateTotalPrice(data);
+        } catch (e) {
+            console.error('Ошибка при загрузке корзины:', e);
+            setErrorMessage('Не удалось загрузить корзину. Попробуйте позже.');
+        }
     };
 
     const calculateTotalPrice = (items) => {
@@ -25,62 +32,67 @@ const Basket = () => {
     }, []);
 
     const handleRemove = async (id) => {
-        await removeFromBasket(id);
-        const updated = basketDevices.filter(item => item.id !== id);
-        setBasketDevices(updated);
-        calculateTotalPrice(updated);
+        try {
+            await removeFromBasket(id);
+            const updated = basketDevices.filter(item => item.id !== id);
+            setBasketDevices(updated);
+            calculateTotalPrice(updated);
+        } catch (e) {
+            console.error('Ошибка при удалении из корзины:', e);
+            setErrorMessage('Не удалось удалить товар. Попробуйте позже.');
+        }
     };
 
-const handleOrder = async () => {
-    try {
-        const res = await createOrder(); // допустим, он вернёт orderId
+    const handleOrder = async () => {
+        try {
+            const res = await createOrder(); // допустим, он вернёт orderId
 
-        // Подготовим данные для печати
-        const receiptWindow = window.open('', '_blank', 'width=600,height=800');
+            const receiptWindow = window.open('', '_blank', 'width=600,height=800');
 
-        const orderDetails = {
-            id: res.orderId,
-            totalPrice,
-            devices: basketDevices.map(item => ({
-                name: item.device.name,
-                price: item.device.price,
-                brand: { name: item.device.brand?.name || 'Без бренда' }
-            }))
-        };
+            const orderDetails = {
+                id: res.orderId,
+                totalPrice,
+                devices: basketDevices.map(item => ({
+                    name: item.device.name,
+                    price: item.device.price,
+                    brand: { name: item.device.brand?.name || 'Без бренда' }
+                }))
+            };
 
-        // Превратим в HTML + inline React
-        receiptWindow.document.write(`
-            <html>
-              <head>
-                <title>Чек заказа</title>
-              </head>
-              <body>
-                <div id="receipt-root"></div>
-                <script>
-                    window.order = ${JSON.stringify(orderDetails)};
-                </script>
-                <script src="/receipt-print.js"></script>
-              </body>
-            </html>
-        `);
+            receiptWindow.document.write(`
+                <html>
+                  <head>
+                    <title>Чек заказа</title>
+                  </head>
+                  <body>
+                    <div id="receipt-root"></div>
+                    <script>
+                        window.order = ${JSON.stringify(orderDetails)};
+                    </script>
+                    <script src="/receipt-print.js"></script>
+                  </body>
+                </html>
+            `);
+            receiptWindow.document.close();
 
-        receiptWindow.document.close();
-
-        // Очистим корзину и уйдём на главную
-        setBasketDevices([]);
-        setTotalPrice(0);
-        navigate('/');
-    } catch (e) {
-        console.error('❌ Ошибка при оформлении заказа:', e?.response?.data || e.message);
-        alert('Ошибка при оформлении заказа');
-    }
-};
-
-
+            setBasketDevices([]);
+            setTotalPrice(0);
+            navigate('/');
+        } catch (e) {
+            console.error('❌ Ошибка при оформлении заказа:', e?.response?.data || e.message);
+            setErrorMessage('Не удалось оформить заказ. Попробуйте позже.');
+        }
+    };
 
     return (
         <Container className="mt-3">
             <h2>Корзина</h2>
+
+            {errorMessage && (
+                <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible>
+                    {errorMessage}
+                </Alert>
+            )}
 
             {basketDevices.length === 0 ? (
                 <p>Корзина пуста</p>
