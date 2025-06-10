@@ -1,4 +1,4 @@
-const { Basket, BasketDevice, Device } = require('../models/models');
+const { Basket, BasketDevice, Device, Brand } = require('../models/models');
 const ApiError = require('../error/ApiError');
 
 class BasketController {
@@ -32,7 +32,12 @@ class BasketController {
 
             const basketDevices = await BasketDevice.findAll({
                 where: { basketId: basket.id },
-                include: [{ model: Device }]
+                include: [
+                    {
+                        model: Device,
+                        include: [Brand], // 🔧 добавили загрузку бренда
+                    },
+                ],
             });
 
             return res.json(basketDevices);
@@ -41,7 +46,7 @@ class BasketController {
         }
     }
 
-    // (Опционально) Удаление товара из корзины
+    // Удаление товара из корзины
     async removeDevice(req, res, next) {
         try {
             const { id } = req.params; // id basketDevice

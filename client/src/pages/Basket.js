@@ -43,7 +43,8 @@ const handleOrder = async () => {
             totalPrice,
             devices: basketDevices.map(item => ({
                 name: item.device.name,
-                price: item.device.price
+                price: item.device.price,
+                brand: { name: item.device.brand?.name || 'Без бренда' }
             }))
         };
 

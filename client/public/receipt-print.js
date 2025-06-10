@@ -39,15 +39,20 @@ window.addEventListener('DOMContentLoaded', () => {
                         <th style="border: 1px solid #ccc; padding: 10px;">Цена (₽)</th>
                     </tr>
                 </thead>
-                <tbody>
-                    ${order.devices.map((device, idx) => `
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${idx + 1}</td>
-                            <td style="border: 1px solid #ddd; padding: 10px;">${device.name}</td>
-                            <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">${device.price}</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
+<tbody>
+    ${order.devices.map((device, idx) => `
+        <tr>
+            <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">${idx + 1}</td>
+            <td style="border: 1px solid #ddd; padding: 10px;">
+                <strong>${device.brand?.name || 'Без бренда'}</strong><br/>
+                ${device.name}
+            </td>
+            <td style="border: 1px solid #ddd; padding: 10px; text-align: right;">${device.price}</td>
+        </tr>
+    `).join('')}
+</tbody>
+
+
             </table>
 
             <div style="margin-top: 30px; text-align: right; font-size: 24px;">
