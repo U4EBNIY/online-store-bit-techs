@@ -8,7 +8,7 @@ const BrandBar = observer(() => {
     return (
         <Row className='d-flex'>
             {device.brands.map(brand =>
-                <Col>
+                <Col style={{minWidth: 'fit-content'}}>
                 <Card
                 style={{cursor: 'pointer'}}
                     key={brand.id}
